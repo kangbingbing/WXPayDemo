@@ -55,7 +55,7 @@
     trade_type =@"APP";
     //商户密钥
     partner = WX_PartnerKey;
-    //获取sign签名, 先初始化, 让data 有值
+    //获取sign签名, // 1进行字典赋值, 2排序, 3拼接商户partnerkey, 4 MD5大写加密
     DataMD5 *data = [[DataMD5 alloc] initWithAppid:appid mch_id:mch_id nonce_str:nonce_str partner_id:partner body:body out_trade_no:out_trade_no total_fee:total_fee spbill_create_ip:spbill_create_ip notify_url:notify_url trade_type:trade_type];
     // 根据字典进行MD5  key 已写死, 直接赋值以上 value (notify_url)
     sign = [data getSignForMD5];
@@ -83,7 +83,7 @@
 - (void)http:(NSString *)xml {
     // 开始支付, 调用统一下单 API
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    //这里传入的xml字符串只是形似xml，但是不是正确是xml格式，需要使用af方法进行转义
+    // 记得转义
     manager.responseSerializer = [[AFHTTPResponseSerializer alloc] init];
     [manager.requestSerializer setValue:@"text/xml; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
     [manager.requestSerializer setValue:url forHTTPHeaderField:@"SOAPAction"];
@@ -94,7 +94,7 @@
     [manager POST:url parameters:xml progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSString *responseString = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding] ;
         NSLog(@"%@",responseString);
-        //将微信返回的xml数据解析转义成字典
+        //将微信返回的xml数据解析成字典
         NSDictionary *dic = [NSDictionary dictionaryWithXMLString:responseString];
         //判断返回的许可
         if ([[dic objectForKey:@"result_code"] isEqualToString:@"SUCCESS"] &&[[dic objectForKey:@"return_code"] isEqualToString:@"SUCCESS"] ) {
@@ -112,7 +112,7 @@
             request.timeStamp= timeStamp;  // 要求10位数, 秒级
             
             DataMD5 *md5 = [[DataMD5 alloc] init];
-            // 开始签名加密
+            // 开始签名加密 , 再次调用, 把以上信息排序, MD5, 给 sign 赋值
             request.sign=[md5 createMD5SingForPay:request.openID partnerid:request.partnerId prepayid:request.prepayId package:request.package noncestr:request.nonceStr timestamp:request.timeStamp];
             // 调用微信支付请求
             [WXApi sendReq:request];

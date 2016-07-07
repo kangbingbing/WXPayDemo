@@ -107,7 +107,7 @@
     NSArray *sortedArray = [keys sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
         return [obj1 compare:obj2 options:NSNumericSearch];
     }];
-    //拼接字符串   从字典里面查找对应的 key, 如果不等于这几个就开始拼接 key=value&
+    //拼接字符串   从字典里面查找对应的value, 如果不等于这几个就开始拼接 key=value&
     for (NSString *categoryId in sortedArray) {
         if (   ![[signParams objectForKey:categoryId] isEqualToString:@""]
             && ![[signParams objectForKey:categoryId] isEqualToString:@"sign"]
@@ -129,10 +129,10 @@
 -(NSString *) md5:(NSString *)str
 {   // 必须大写
     const char *cStr = [str UTF8String];
-    //加密规则，因为逗比微信没有出微信支付demo，这里加密规则是参照安卓demo来得
+    
     unsigned char result[16]= "0123456789abcdef";
     CC_MD5(cStr, (CC_LONG)strlen(cStr), result);
-    //这里的x是小写则产生的md5也是小写，x是大写则md5是大写，这里只能用大写，微信的大小写验证很逗
+    //  注意, MD5后大写
     return [NSString stringWithFormat:
             @"%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
             result[0], result[1], result[2], result[3],
